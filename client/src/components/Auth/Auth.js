@@ -13,6 +13,8 @@ import { GoogleLogin } from "react-google-login";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 
 import Input from "./Input";
+import { AUTH } from "../../constants/actionTypes";
+import { signIn, signUp } from "../../actions/auth";
 import Icon from "./icon";
 
 import useStyles from "./styles";
@@ -26,7 +28,7 @@ const initialState = {
 };
 
 const Auth = () => {
-  const [form, setForm] = useState(initialState);
+  const [formData, setFormData] = useState(initialState);
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const history = useHistory();
@@ -36,20 +38,20 @@ const Auth = () => {
   const handleShowPassword = () => setShowPassword(!showPassword);
 
   const switchMode = () => {
-    setForm(initialState);
+    setFormData(initialState);
     setIsSignUp(!isSignUp);
     setShowPassword(false);
   };
 
   const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const googleSuccess = async (res) => {
     const result = res?.profileObj;
     const token = res?.tokenId;
 
     try {
-      dispatch({ type: "AUTH", data: { result, token } });
+      dispatch({ type: AUTH, data: { result, token } });
       history.push("/");
     } catch (error) {
       console.log(error);
@@ -61,6 +63,9 @@ const Auth = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (isSignUp) dispatch(signUp(formData, history));
+    else dispatch(signIn(formData, history));
   };
 
   return (
